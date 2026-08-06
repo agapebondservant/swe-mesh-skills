@@ -17,7 +17,7 @@ One entry per dependency:
   native OS dependencies, RHEL 10 system crypto policy, library version. 
   Set to true, false, or null if you cannot determine compatibility with 
   confidence. Do not guess.
-- `supported_on_rhel10_reason` — justification for why the library is 
+- `supported_on_rhel10_reason` — justification for why the library is
   supported on RHEL 10 or not. If null, state what information would be needed to make the determination.
 - `opensource` — whether or not the library is open source
 
