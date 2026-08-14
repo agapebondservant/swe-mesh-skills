@@ -52,7 +52,10 @@ with RHEL 10 compatibility assessments.
      except `supported_on_rhel10` and `eol`, which must always be included even when null.
    - If a schema was loaded in Step 1, validate your output field names against
      it and fix any mismatches before writing.
-   - Return only JSON; do not include any markdown formatting, backticks, or preamble.
+   - Output must be valid JSON parseable by `json.loads()`. Do not use YAML format.
+     WRONG (YAML): `runtime_stack:\n- name: Java\n  runtime_version: OpenJDK 21`
+     CORRECT (JSON): `{"runtime_stack": [{"name": "Java", "runtime_version": "OpenJDK 21", "eol": false}]}`
+   - Do not include any markdown formatting, backticks, or preamble.
 
    Example structure:
    ```json
