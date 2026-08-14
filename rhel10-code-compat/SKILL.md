@@ -31,9 +31,9 @@ with RHEL 10 compatibility assessments.
 2. Locate every dependency file and runtime version file in the codebase and
    list them before proceeding. Dependency files include (but are not limited to):
    `pom.xml`, `build.gradle`, `requirements.txt`, `pyproject.toml`, `package.json`,
-   `go.mod`, `Gemfile`, `Cargo.toml`. Runtime version files include (but are not
-   limited to): `.nvmrc`, `.python-version`, `.java-version`, `.tool-versions`,
-   `Dockerfile`, `.ruby-version`.
+   `bower.json`, `go.mod`, `Gemfile`, `Cargo.toml`. Runtime version files include
+   (but are not limited to): `.nvmrc`, `.python-version`, `.java-version`,
+   `.tool-versions`, `Dockerfile`, `.ruby-version`.
 
 3. For each file found, read it completely.
 
