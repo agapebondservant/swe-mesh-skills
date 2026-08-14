@@ -19,8 +19,8 @@ Copy or symlink the skill directory into your agent's skills folder. For example
 
 ```bash
 # OpenCode
-cp rhel10-code-compat ~/.config/opencode/skills/rhel10-code-compat
+cp -r rhel10-code-compat ~/.config/opencode/skills/rhel10-code-compat
 
 # Cursor / Windsurf
-cp rhel10-code-compat ~/.cursor/skills/
+cp -r rhel10-code-compat ~/.cursor/skills/
 ```
