@@ -36,6 +36,7 @@ with RHEL 10 compatibility assessments.
    Example structure:
    ```json
    {
+     "git_repo": "https://github.com/acme/my-app",
      "libraries": [
        {
          "library_name": "spring-boot",

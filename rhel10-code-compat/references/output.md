@@ -1,5 +1,9 @@
 # Output Schema
 
+## Top-level fields
+
+- `git_repo` — URL of the git repository being analyzed
+
 ## libraries
 
 One entry per dependency:
