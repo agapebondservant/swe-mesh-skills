@@ -20,22 +20,29 @@ Analyze this project for RHEL 10 compatibility
 ```
 
 The agent will:
-1. Locate and read all dependency files
-2. Detect the runtime version (JDK 8, Python 2.7, etc) from version files
-3. Extract all declared dependencies and map them to codebase packages
-4. Emit a JSON report with no fences
+1. Load the output schema (from MLflow or references/output.md)
+2. Locate and read all dependency files and runtime version files
+3. Detect the runtime version per language (JDK 21, Python 3.12, etc) from version files and build config
+4. Extract all declared dependencies and map them to codebase packages
+5. Emit a JSON report with no fences
 
 **Output shape:**
 
 ```json
 {
+  "runtime_stack": [
+    {
+      "name": "Java",
+      "runtime_version": "OpenJDK 1.8",
+      "eol": true
+    }
+  ],
   "libraries": [
     {
-      "name": "resteasy-jackson2-provider",
-      "version": "4.0.0.Beta6",
-      "version_source": "pom.xml: <version>4.0.0.Beta6</version>",
-      "runtime_version": "OpenJDK 1.8",
-      "deprecated": null,
+      "library_name": "resteasy-jackson2-provider",
+      "library_version": "4.0.0.Beta6",
+      "library_version_source": "pom.xml:28",
+      "library_runtime_version": "OpenJDK 1.8",
       "supported_on_rhel10": false,
       "supported_on_rhel10_reason": "Pre-release version (Beta6) is not production-supported. Runtime targets JDK 1.8 which is not available on RHEL 10 (ships JDK 21/25 only).",
       "opensource": true
@@ -43,7 +50,7 @@ The agent will:
   ],
   "repo_packages": [
     {
-      "name": "com.example.api.rest",
+      "package": "com.example.api.rest",
       "library": "resteasy-jackson2-provider",
       "reason": "Package imports org.jboss.resteasy.plugins.providers.jackson found in resteasy-jackson2-provider"
     }
