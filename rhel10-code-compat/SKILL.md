@@ -110,6 +110,6 @@ with RHEL 10 compatibility assessments.
    }
    ```
 
-6. Write the JSON to a file named `rhel10-compat-report.txt` in the root of
-   the analyzed codebase. If the user specified a different filename or path,
-   use that instead. Confirm the file path after writing.
+6. Write the JSON to a file named `rhel10-code-compat-report.txt` in the 
+   root of the analyzed codebase. If the user specified a different 
+   filename or path, use that instead. Confirm the file path after writing.
