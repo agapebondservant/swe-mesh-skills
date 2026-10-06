@@ -33,16 +33,21 @@ with RHEL 10 compatibility assessments.
    `pom.xml`, `build.gradle`, `requirements.txt`, `pyproject.toml`, `package.json`,
    `bower.json`, `go.mod`, `Gemfile`, `Cargo.toml`. Runtime version files include
    (but are not limited to): `.nvmrc`, `.python-version`, `.java-version`,
-   `.tool-versions`, `Dockerfile`, `.ruby-version`.
+   `.tool-versions`, `Dockerfile`, `.ruby-version`. If none of the standard 
+   dependency files are found, explore the project structure further 
+   and look for any file that declares external module, package, or library 
+   dependencies using language-native mechanisms. Read any candidate files 
+   before concluding that no dependencies exist.
 
 3. For each file found, read it completely.
 
-4. For each dependency file, extract every declared dependency and map it to the
-   relevant package in the codebase. For each runtime version file and build
-   configuration, detect each software component (language runtime, framework,
-   database, middleware) and its version; produce one `runtime_stack` entry per
-   component. For each `runtime_stack` entry, assess known CVEs (`vulnerabilities`)
-   and whether the version is end-of-life (`eol`). Set `library_runtime_version`
+4. For each dependency file, extract every declared dependency and map it 
+   to the relevant package in the codebase. For each runtime version file 
+   and build configuration, detect each software component (language 
+   runtime, framework, database, middleware) and its version; produce one 
+   `runtime_stack` entry per component. For each `runtime_stack` entry, 
+   assess known CVEs (`vulnerabilities`) and whether the version is 
+   end-of-life (`eol`). Set `library_runtime_version`
    on each library to the runtime it requires (e.g., OpenJDK 21 for a Java library,
    Python 3.12 for a Python library).
 
@@ -110,6 +115,8 @@ with RHEL 10 compatibility assessments.
    }
    ```
 
-6. Write the JSON to a file named `rhel10-code-compat-report.txt` in the 
-   root of the analyzed codebase. If the user specified a different 
+6. You MUST write the JSON to a file named `rhel10-code-compat-report.txt` in 
+   the root of the analyzed codebase. Even if no dependency files were 
+   found, write an empty report with the correct JSON structure in that 
+   case. If the user specified a different 
    filename or path, use that instead. Confirm the file path after writing.
