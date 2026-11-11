@@ -1,0 +1,127 @@
+---
+name: protobuf-mapper
+description: Analyzes a codebase for Protocol Buffer and gRPC definitions,
+  extracts service/message metadata, and maps proto packages to their runtime
+  libraries. Use during code analysis when the developer asks to map protobuf
+  definitions, audit gRPC dependencies, or review proto package structure.
+license: MIT
+parameters:
+  mlflow_schema_url:
+    description: URL of the output schema artifact in MLflow. Used in Step 1 to
+      validate output field names. Omit if MLflow is not available; the skill
+      will fall back to references/output.md.
+    required: false
+---
+
+# Protocol Buffer & gRPC Mapper
+
+Scans a repository for `.proto` files and protobuf/gRPC build configuration,
+then produces a JSON report of runtime components, libraries, and proto package
+mappings.
+
+## Workflow
+
+1. Load the output schema by trying the following in order:
+
+   a. If {mlflow_schema_url} was provided by the caller, fetch the schema from
+      that URL. If the fetch succeeds, use that schema as the source of truth.
+   b. If {mlflow_schema_url} was not provided, or MLflow is unreachable or
+      returns an error, fall back to reading `references/output.md` if it exists.
+      Otherwise, skip schema validation.
+
+2. Locate all `.proto` files and protobuf/gRPC-related build configuration in
+   the codebase and list them before proceeding. Build configuration includes
+   (but is not limited to): `buf.yaml`, `buf.gen.yaml`, `buf.lock`,
+   protobuf plugin declarations in `pom.xml` (e.g., `protobuf-maven-plugin`,
+   `os-maven-plugin`), `build.gradle` / `build.gradle.kts` (e.g.,
+   `com.google.protobuf` plugin, `protobuf` block), `package.json` (e.g.,
+   `@grpc/grpc-js`, `google-protobuf`, `grpc-tools`), `go.mod` (e.g.,
+   `google.golang.org/grpc`, `google.golang.org/protobuf`), `Cargo.toml`
+   (e.g., `tonic`, `prost`), `pyproject.toml` / `requirements.txt` (e.g.,
+   `grpcio`, `grpcio-tools`, `protobuf`), and `Dockerfile` references to
+   `protoc` or gRPC base images. If none of the standard files are found,
+   explore the project structure further and look for any file that declares
+   protobuf or gRPC dependencies. Read any candidate files before concluding
+   that no protobuf usage exists.
+
+3. For each file found, read it completely.
+
+4. For each file, extract the following:
+   - Proto package names (the `package` declaration in each `.proto` file)
+   - Service definitions with their RPC methods (name, request type,
+     response type, streaming modifiers)
+   - Message types and their fields
+   - Import paths between `.proto` files
+   - `protoc` compiler version and gRPC runtime version from build
+     configuration, Dockerfiles, or plugin declarations; produce one
+     `runtime_stack` entry per component
+   - Declared protobuf/gRPC library dependencies with versions; produce one
+     `libraries` entry per dependency
+   - For each `libraries` entry, set `library_runtime_version` to the runtime
+     it requires (e.g., OpenJDK 21 for a Java gRPC library, Python 3.12 for
+     grpcio); this must match a `runtime_version` in the `runtime_stack` array
+
+5. Generate the output described in `references/output.md` as a JSON object
+   with the following rules:
+   - Omit any field whose value is null, an empty string, or an empty list —
+     except `eol`, which must always be included even when null.
+   - If a schema was loaded in Step 1, validate your output field names against
+     it and fix any mismatches before writing.
+   - Output must be valid JSON parseable by `json.loads()`. Do not use YAML format.
+     WRONG (YAML): `runtime_stack:\n- name: protoc\n  runtime_version: 25.1`
+     CORRECT (JSON): `{"runtime_stack": [{"name": "protoc", "runtime_version": "25.1", "eol": false}]}`
+   - Do not include any markdown formatting, backticks, or preamble.
+
+   Example structure:
+   ```json
+   {
+     "runtime_stack": [
+       {
+         "name": "protoc",
+         "runtime_version": "25.1",
+         "eol": false
+       },
+       {
+         "name": "gRPC",
+         "runtime_version": "1.60.0",
+         "eol": false
+       },
+       {
+         "name": "Java",
+         "runtime_version": "OpenJDK 21",
+         "eol": false
+       }
+     ],
+     "libraries": [
+       {
+         "library_name": "grpc-java",
+         "library_version": "1.60.0",
+         "library_version_source": "build.gradle:15",
+         "library_runtime_version": "OpenJDK 21",
+         "deprecated": false,
+         "opensource": true
+       },
+       {
+         "library_name": "protobuf-java",
+         "library_version": "3.25.1",
+         "library_version_source": "pom.xml:32",
+         "library_runtime_version": "OpenJDK 21",
+         "deprecated": false,
+         "opensource": true
+       }
+     ],
+     "repo_packages": [
+       {
+         "package": "com.acme.orders.v1",
+         "library": "grpc-java",
+         "reason": "Proto package defines OrderService with gRPC service stubs generated by protobuf-maven-plugin using grpc-java runtime"
+       }
+     ]
+   }
+   ```
+
+6. You MUST write the JSON to a file named `protobuf-mapper-report.txt` in
+   the root of the analyzed codebase. Even if no `.proto` files or protobuf
+   dependencies were found, write an empty report with the correct JSON
+   structure in that case. If the user specified a different filename or path,
+   use that instead. Confirm the file path after writing.
